@@ -80,6 +80,11 @@ void *malloc_(size_t size)
     if (next && next->m.size >= size)
     {
         next->m.size -= size;
+        if (prev && next->m.size == 0)
+            prev = next->m.next;
+        else if (!prev && next->m.size == 0)
+            free_list = next->m.next;
+
         return 1 + init_alloced_ptr(next + 1 + next->m.size, size - OFFSET);
     }
     else
@@ -104,6 +109,13 @@ void free_(void *ptr)
         return;
 
     _free *prev = NULL, *next = NULL;
+
+    if (!free_list)
+    {
+        free_list = f;
+        free_list->m.next = NULL;
+        return;
+    }
 
     for (next = free_list; next && next < f; next = next->m.next)
         prev = next;

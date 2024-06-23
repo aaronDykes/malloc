@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 {
 
     char *s = NULL;
-    s = malloc_(sizeof(char) * 30000);
+    s = malloc_(sizeof(char) * 16352);
     _strcpy(s, "Hello world!");
 
     printf("%s\n", s);

@@ -61,13 +61,13 @@ static void _init_free_ptr(_free **ptr, size_t alloc_size, size_t new_size)
     (*ptr)->m.next->m.next = NULL;
 }
 
-static _free *_init_alloced_ptr(void *ptr, size_t size)
+static void *_init_alloced_ptr(void *ptr, size_t size)
 {
     _free *alloced = NULL;
     alloced = ptr;
     alloced->m.next = NULL;
-    alloced->m.size = size;
-    return alloced;
+    alloced->m.size = size - OFFSET;
+    return 1 + alloced;
 }
 
 void *_malloc_(size_t size)
@@ -89,11 +89,11 @@ void *_malloc_(size_t size)
         next->m.size -= size;
 
         if (prev && next->m.size == 0)
-            prev = next->m.next;
+            prev->m.next = next->m.next;
         else if (!prev && next->m.size == 0)
             free_list = next->m.next;
 
-        return 1 + _init_alloced_ptr((char *)(next + 1) + next->m.size, size - OFFSET);
+        return _init_alloced_ptr((char *)(next + 1) + next->m.size, size);
     }
     else
     {
@@ -103,7 +103,7 @@ void *_malloc_(size_t size)
             s *= INC;
 
         _init_free_ptr(&prev, s, size);
-        return 1 + _init_alloced_ptr((char *)(prev->m.next + 1) + prev->m.next->m.size, size - OFFSET);
+        return _init_alloced_ptr((char *)(prev->m.next + 1) + prev->m.next->m.size, size);
     }
 }
 void _free_(void *ptr)

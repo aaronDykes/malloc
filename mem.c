@@ -20,6 +20,12 @@ static void _init_global_mem(void)
     free_list->m.next = NULL;
     free_list->m.size = ARM64_PAGE - OFFSET;
 }
+int _exit_(int state)
+{
+    _destroy_global_mem();
+    return state;
+}
+
 static void _destroy_global_mem(void)
 {
 
@@ -35,19 +41,13 @@ static void _destroy_global_mem(void)
     tmp = NULL;
 }
 
-int _exit_(int state)
-{
-    _destroy_global_mem();
-    return state;
-}
-
 static void _merge(void)
 {
 
     _free *next = NULL;
 
     for (next = free_list; next; next = next->m.next)
-        if ((next + 1) + next->m.size == next->m.next)
+        if ((char *)(next + 1) + next->m.size == (char *)next->m.next)
         {
             next->m.size += next->m.next->m.size;
             next->m.next = next->m.next->m.next;
@@ -93,7 +93,7 @@ void *_malloc_(size_t size)
         else if (!prev && next->m.size == 0)
             free_list = next->m.next;
 
-        return 1 + _init_alloced_ptr(((char *)(next + 1)) + next->m.size, size - OFFSET);
+        return 1 + _init_alloced_ptr((char *)(next + 1) + next->m.size, size - OFFSET);
     }
     else
     {
@@ -103,7 +103,7 @@ void *_malloc_(size_t size)
             s *= INC;
 
         _init_free_ptr(&prev, s, size);
-        return 1 + _init_alloced_ptr(((char *)(prev->m.next + 1)) + prev->m.next->m.size, size - OFFSET);
+        return 1 + _init_alloced_ptr((char *)(prev->m.next + 1) + prev->m.next->m.size, size - OFFSET);
     }
 }
 void _free_(void *ptr)

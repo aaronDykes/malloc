@@ -16,11 +16,11 @@ static void *request_system_mem(size_t size)
 
 static void _init_global_mem()
 {
-    free_list = request_system_mem(ARM64_PAGE * OFFSET);
+    free_list = request_system_mem(ARM64_PAGE);
     free_list->m.next = NULL;
     free_list->m.size = ARM64_PAGE - OFFSET;
 }
-void _destroy_global_mem()
+static void _destroy_global_mem()
 {
 
     _free *tmp = NULL;
@@ -34,6 +34,13 @@ void _destroy_global_mem()
     free_list = NULL;
     tmp = NULL;
 }
+
+int exit_(int state)
+{
+    _destroy_global_mem();
+    return EXIT_SUCCESS;
+}
+
 static void _merge(_free **ptr)
 {
 
@@ -49,7 +56,7 @@ static void _merge(_free **ptr)
 
 static void init_free_ptr(_free **ptr, size_t alloc_size, size_t new_size)
 {
-    (*ptr)->m.next = request_system_mem(alloc_size * OFFSET);
+    (*ptr)->m.next = request_system_mem(alloc_size);
     (*ptr)->m.next->m.size = alloc_size - OFFSET - new_size;
     (*ptr)->m.next->m.next = NULL;
 }
@@ -80,12 +87,13 @@ void *malloc_(size_t size)
     if (next && next->m.size >= size)
     {
         next->m.size -= size;
+
         if (prev && next->m.size == 0)
             prev = next->m.next;
         else if (!prev && next->m.size == 0)
             free_list = next->m.next;
 
-        return 1 + init_alloced_ptr(next + 1 + next->m.size, size - OFFSET);
+        return 1 + init_alloced_ptr(((void *)(next + 1)) + next->m.size, size - OFFSET);
     }
     else
     {
@@ -95,7 +103,7 @@ void *malloc_(size_t size)
             s *= INC;
 
         init_free_ptr(&prev, s, size);
-        return 1 + init_alloced_ptr(prev->m.next + 1 + prev->m.next->m.size, size - OFFSET);
+        return 1 + init_alloced_ptr(((void *)(prev->m.next + 1)) + prev->m.next->m.size, size - OFFSET);
     }
 }
 void free_(void *ptr)
@@ -121,15 +129,10 @@ void free_(void *ptr)
         prev = next;
 
     if (next && next < f)
-    {
-        f->m.next = next->m.next;
-        next->m.next = f;
-    }
+        f->m.next = next->m.next, next->m.next = f;
     else if (prev && prev < f)
-    {
-        f->m.next = prev->m.next;
-        prev->m.next = f;
-    }
+        f->m.next = prev->m.next, prev->m.next = f;
+
     _merge(&f);
 
     prev = NULL;

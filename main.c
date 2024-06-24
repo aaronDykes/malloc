@@ -20,7 +20,5 @@ int main(int argc, char **argv)
     printf("%s\n", s);
 
     free_(s);
-    _destroy_global_mem();
-
-    return EXIT_SUCCESS;
+    return exit_(EXIT_SUCCESS);
 }

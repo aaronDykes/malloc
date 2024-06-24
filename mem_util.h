@@ -28,6 +28,7 @@ static _free *free_list = NULL;
 static _free *free_list_head = NULL;
 
 static void *request_system_mem(size_t size);
+static void destroy_global_mem();
 static void _init_global_mem();
 static void _merge(_free **ptr);
 

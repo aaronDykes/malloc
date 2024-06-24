@@ -5,5 +5,5 @@
 
 void *malloc_(size_t size);
 void free_(void *ptr);
-void _destroy_global_mem();
+int exit_(int state);
 #endif

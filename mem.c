@@ -2,7 +2,7 @@
 #include "mem_util.h"
 #include <sys/mman.h>
 
-static void *request_system_mem(size_t size)
+static void *_request_system_mem(size_t size)
 {
     return (void *)mmap(
         NULL,
@@ -14,13 +14,13 @@ static void *request_system_mem(size_t size)
         -1, 0);
 }
 
-static void _init_global_mem()
+static void _init_global_mem(void)
 {
-    free_list = request_system_mem(ARM64_PAGE);
+    free_list = _request_system_mem(ARM64_PAGE);
     free_list->m.next = NULL;
     free_list->m.size = ARM64_PAGE - OFFSET;
 }
-static void _destroy_global_mem()
+static void _destroy_global_mem(void)
 {
 
     _free *tmp = NULL;
@@ -35,13 +35,13 @@ static void _destroy_global_mem()
     tmp = NULL;
 }
 
-int exit_(int state)
+int _exit_(int state)
 {
     _destroy_global_mem();
-    return EXIT_SUCCESS;
+    return state;
 }
 
-static void _merge(_free **ptr)
+static void _merge(void)
 {
 
     _free *next = NULL;
@@ -54,14 +54,14 @@ static void _merge(_free **ptr)
         }
 }
 
-static void init_free_ptr(_free **ptr, size_t alloc_size, size_t new_size)
+static void _init_free_ptr(_free **ptr, size_t alloc_size, size_t new_size)
 {
-    (*ptr)->m.next = request_system_mem(alloc_size);
+    (*ptr)->m.next = _request_system_mem(alloc_size);
     (*ptr)->m.next->m.size = alloc_size - OFFSET - new_size;
     (*ptr)->m.next->m.next = NULL;
 }
 
-static _free *init_alloced_ptr(_free *ptr, size_t size)
+static _free *_init_alloced_ptr(void *ptr, size_t size)
 {
     _free *alloced = NULL;
     alloced = ptr;
@@ -70,7 +70,7 @@ static _free *init_alloced_ptr(_free *ptr, size_t size)
     return alloced;
 }
 
-void *malloc_(size_t size)
+void *_malloc_(size_t size)
 {
 
     if (!free_list)
@@ -93,7 +93,7 @@ void *malloc_(size_t size)
         else if (!prev && next->m.size == 0)
             free_list = next->m.next;
 
-        return 1 + init_alloced_ptr(((void *)(next + 1)) + next->m.size, size - OFFSET);
+        return 1 + _init_alloced_ptr(((char *)(next + 1)) + next->m.size, size - OFFSET);
     }
     else
     {
@@ -102,11 +102,11 @@ void *malloc_(size_t size)
         while (s < size)
             s *= INC;
 
-        init_free_ptr(&prev, s, size);
-        return 1 + init_alloced_ptr(((void *)(prev->m.next + 1)) + prev->m.next->m.size, size - OFFSET);
+        _init_free_ptr(&prev, s, size);
+        return 1 + _init_alloced_ptr(((char *)(prev->m.next + 1)) + prev->m.next->m.size, size - OFFSET);
     }
 }
-void free_(void *ptr)
+void _free_(void *ptr)
 {
     _free *f = NULL;
     f = PTR(ptr);
@@ -133,7 +133,7 @@ void free_(void *ptr)
     else if (prev && prev < f)
         f->m.next = prev->m.next, prev->m.next = f;
 
-    _merge(&f);
+    _merge();
 
     prev = NULL;
     next = NULL;

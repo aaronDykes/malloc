@@ -3,7 +3,8 @@
 
 #include <stdlib.h>
 
-void *malloc_(size_t size);
-void free_(void *ptr);
-int exit_(int state);
+void *_malloc_(size_t size);
+void _free_(void *ptr);
+int _exit_(int state);
+
 #endif

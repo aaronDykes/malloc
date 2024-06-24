@@ -14,11 +14,11 @@ int main(int argc, char **argv)
 {
 
     char *s = NULL;
-    s = malloc_(sizeof(char) * 16352);
+    s = _malloc_(sizeof(char) * 16352);
     _strcpy(s, "Hello world!");
 
     printf("%s\n", s);
 
-    free_(s);
-    return exit_(EXIT_SUCCESS);
+    _free_(s);
+    return _exit_(EXIT_SUCCESS);
 }

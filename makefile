@@ -1,6 +1,7 @@
 .PHONY	:= all clean
 CC		:= gcc
-CFLAGS	:= -g -Wall -Wextra -MP -MD
+# CFLAGS	:= -O2
+CFLAGS	:= -g -MP -MD -pedantic
 
 SRC		:= $(wildcard ./*.c)
 OBJ		:= $(SRC:%.c=%.o)

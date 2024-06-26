@@ -1,6 +1,8 @@
 #include "mem.h"
 #include "mem_util.h"
+#include <string.h>
 #include <sys/mman.h>
+#include <stdlib.h>
 
 static void *_request_system_mem(size_t size)
 {
@@ -106,6 +108,32 @@ void *_malloc_(size_t size)
         return _init_alloced_ptr((char *)(prev->m.next + 1) + prev->m.next->m.size, size);
     }
 }
+
+void *_realloc_(void *ptr, size_t old_size, size_t size)
+{
+
+    if (size <= 0)
+    {
+        _free_(ptr);
+        ptr = NULL;
+        return NULL;
+    }
+
+    void *new = NULL;
+    new = _malloc_(size);
+
+    size_t tmp_size = (old_size < size)
+                          ? old_size
+                          : size;
+
+    memcpy(new, (char *)ptr, tmp_size);
+
+    _free_(ptr);
+    ptr = NULL;
+
+    return new;
+}
+
 void _free_(void *ptr)
 {
     _free *f = NULL;

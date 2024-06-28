@@ -31,8 +31,10 @@ int _exit_(int state)
 static void _destroy_global_mem(void)
 {
 
+    _merge();
     _free *tmp = NULL;
 
+    // mu
     while (free_list)
     {
         tmp = free_list->m.next;
@@ -46,14 +48,27 @@ static void _destroy_global_mem(void)
 static void _merge(void)
 {
 
-    _free *next = NULL;
+    _free *next = NULL, *prev = NULL;
 
     for (next = free_list; next; next = next->m.next)
+    {
+        prev = next;
+
         if ((char *)(next + 1) + next->m.size == (char *)next->m.next)
         {
-            next->m.size += next->m.next->m.size;
-            next->m.next = next->m.next->m.next;
+            prev->m.size += next->m.next->m.size;
+            prev->m.next = next->m.next->m.next;
         }
+    }
+
+    // if (!prev)
+    // {
+    //     free_list->m.size += free_list->m.next->m.size;
+    //     free_list->m.next = NULL;
+    //     return;
+    // }
+
+    // if (!next)
 }
 
 static void _init_free_ptr(_free **ptr, size_t alloc_size, size_t new_size)
@@ -69,7 +84,7 @@ static void *_init_alloced_ptr(void *ptr, size_t size)
     alloced = ptr;
     alloced->m.next = NULL;
     alloced->m.size = size - OFFSET;
-    return 1 + alloced;
+    return ++alloced;
 }
 
 void *_malloc_(size_t size)
@@ -120,15 +135,18 @@ void *_realloc_(void *ptr, size_t old_size, size_t size)
     }
 
     void *new = NULL;
-    new = _malloc_(size);
+    new = MALLOC(size);
 
     size_t tmp_size = (old_size < size)
                           ? old_size
                           : size;
 
+    if (!ptr)
+        return new;
+
     memcpy(new, (char *)ptr, tmp_size);
 
-    _free_(ptr);
+    FREE(ptr);
     ptr = NULL;
 
     return new;

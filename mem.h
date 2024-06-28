@@ -3,8 +3,14 @@
 
 #include <stdlib.h>
 
+#define INC 2
+
 #define MALLOC(size) \
     _malloc_(size)
+
+#define REALLOC(ptr, old_size, new_size) \
+    _realloc_(ptr, old_size, new_size)
+
 #define FREE(ptr) \
     _free_(ptr)
 

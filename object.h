@@ -11,8 +11,12 @@ typedef enum
     _TYPE_LONG,
     _TYPE_CHAR,
     _TYPE_STR,
+    _TYPE_NULL,
 
 } T;
+
+#define FREE_OBJ(ptr) \
+    free_obj(ptr)
 
 typedef struct object object;
 typedef struct string string;
@@ -63,6 +67,7 @@ union value
     long long int _long;
     char _char;
     string c;
+    void *_null;
 };
 
 struct object
@@ -77,11 +82,13 @@ struct object
     };
 };
 
-value _key(const char *key);
 object _int(int _int);
 object _double(double _double);
 object _long(long long int _long);
 object _char(char _char);
 object _string(const char *_string);
+string _key(const char *_string);
+object _null(void);
+void free_obj(object obj);
 
 #endif

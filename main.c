@@ -30,13 +30,13 @@ int main(int argc, char **argv)
     // delete_entry(&t, k1);
     // delete_entry(&t, k);
     // delete_entry(&t, k2);
-    delete_entry(&t, k3);
+    // delete_entry(&t, k3);
 
     printf("%s\n", find_entry(t, k1).as.c._string);
     printf("%s\n", find_entry(t, k2).as.c._string);
     printf("%s\n", find_entry(t, k3).as.c._string);
 
-    _free_table(&t);
+    // _free_table(&t);
 
     return _exit_(EXIT_SUCCESS);
 }

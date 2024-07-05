@@ -199,7 +199,10 @@ table *_realloc_table(table **tab, size_t size)
                            : size;
 
     for (size_t i = 0; i < copy_size; i++)
-        t[i] = (*tab)[i];
+    {
+        size_t index = (*tab)[i].key.hash & (size - 1);
+        t[index] = (*tab)[i];
+    }
 
     (t - 1)->count = ((*tab) - 1)->count;
 

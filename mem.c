@@ -60,15 +60,6 @@ static void _merge(void)
             prev->m.next = next->m.next->m.next;
         }
     }
-
-    // if (!prev)
-    // {
-    //     free_list->m.size += free_list->m.next->m.size;
-    //     free_list->m.next = NULL;
-    //     return;
-    // }
-
-    // if (!next)
 }
 
 static void _init_free_ptr(_free **ptr, size_t alloc_size, size_t new_size)
@@ -84,7 +75,7 @@ static void *_init_alloced_ptr(void *ptr, size_t size)
     alloced = ptr;
     alloced->m.next = NULL;
     alloced->m.size = size - OFFSET;
-    return ++alloced;
+    return memset((void *)(1 + alloced), 0, size - OFFSET);
 }
 
 void *_malloc_(size_t size)

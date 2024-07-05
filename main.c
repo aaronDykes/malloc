@@ -16,8 +16,6 @@ int main(int argc, char **argv)
 
     table *t = _table(1);
 
-    string k = _key("Aaron");
-    object v = _string("I love waiting in my room and masturbating");
     string k1 = _key("dyke");
     object v1 = _string("dykes");
     string k2 = _key("another");
@@ -25,7 +23,6 @@ int main(int argc, char **argv)
     string k3 = _key("okay");
     object v3 = _string("sir dyke");
 
-    insert_entry(t, entry(k, v));
     insert_entry(t, entry(k1, v1));
     insert_entry(t, entry(k2, v2));
     insert_entry(t, entry(k3, v3));
@@ -35,7 +32,6 @@ int main(int argc, char **argv)
     // delete_entry(&t, k2);
     delete_entry(&t, k3);
 
-    printf("%s\n", find_entry(t, k).as.c._string);
     printf("%s\n", find_entry(t, k1).as.c._string);
     printf("%s\n", find_entry(t, k2).as.c._string);
     printf("%s\n", find_entry(t, k3).as.c._string);
